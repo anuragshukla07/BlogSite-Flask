@@ -1,27 +1,14 @@
 from flask import render_template, url_for , flash , redirect, request
-from flaskblog.forms import RegistrationForm , LoginForm
+from flaskblog.forms import RegistrationForm , LoginForm , PostForm
 from flaskblog import app,db,bcrypt
 from flaskblog.models import User, Post
 from flask_login import login_user, current_user,logout_user ,login_required
 
-posts=[ 
-        {
-        'author':'Anurag Shukla',
-        'title' : 'Post name 1',
-        'content' : 'First post content',
-        'date_posted' : 'June 15 2021'
-        },
-        {
-        'author':'Sameer Ahmed',
-        'title' : 'Post name 2',
-        'content' : 'Second post content',
-        'date_posted' : 'June 17 2021'
-        }
-      ]
 
 @app.route("/")
 @app.route("/home")
 def home():
+    posts = Post.query.all()
     return render_template('home.html',posts=posts)
 
 
@@ -73,3 +60,17 @@ def logout():
 @login_required
 def account():
     return render_template('account.html',title='Account')    
+
+
+@app.route("/post/new",methods=['GET','POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash('New blog posted successfully !','success')
+        return redirect(url_for('home'))
+
+    return render_template('create_post.html',title='New Post',form=form)   
