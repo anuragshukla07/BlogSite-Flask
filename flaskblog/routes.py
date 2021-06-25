@@ -88,10 +88,10 @@ def update_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)
-    form=PostForm()
+    form = PostForm()
     if form.validate_on_submit():
         post.title=form.title.data
-        post.content=form.title.data
+        post.content=form.content.data
         db.session.commit()
         flash('Your Post has been updated !','success')
         return redirect(url_for('post',post_id=post.id))
@@ -110,4 +110,4 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()  
     flash('Your post has been deleted !','success')
-    return redirect(url_for('home'))  
+    return redirect(url_for('home'))   
